@@ -1,0 +1,151 @@
+var viewer = new Cesium.Viewer('cesiumContainer');
+var theta = 180; //Angle of the focal point of the triangle
+var r = 5; //Radius
+var divisions = theta;
+
+//Calculates the arc from the radius and degrees
+function calculateArc(){
+    var pi = Math.PI;
+    var arc = (theta/180) * pi * r;
+    var c = r * Math.sqrt(2-(2*Math.cos(theta)));
+    console.log("arc length: " + arc);
+    console.log("opposite of angle: " + c);
+    return arc;
+}
+
+//Calculates the maximum height of the arc from the hypotenuse
+function arcMaxHeight(){
+    var h = r * (1-Math.cos(theta/2));
+    console.log("max height of arc: " + h);
+    return h;
+}
+
+var startPoint = 0;
+
+function drawCameraCoverage(mouseX, mouseY){
+    var triangleArray = [mouseX,mouseY];
+    var theta2 = theta/divisions;
+    console.log(" ");
+
+    if(mouseX>0 && mouseY>0){
+        for(var i=0;i<=divisions;i++){
+            var theta3 = theta2 * i;
+            var rads2deg = theta3 * (Math.PI/180);
+        
+            console.log("theta3: " + theta3);
+            console.log("degrees: " + rads2deg);
+        
+        
+            var latitude = r * Math.sin(rads2deg);
+            console.log("loop: " + i + " Lat: " + r + "sin" + theta3 + " = " + latitude);
+            console.log("lat - coord = " + (mouseX - latitude));
+
+            
+            var longitude = r * Math.cos(rads2deg);
+            console.log("loop: " + i + " Long: " + r + "cos" + theta3 + " = " + longitude);
+            console.log("long - coord = " + (mouseY - longitude));
+
+       
+
+            triangleArray.push(mouseX - latitude);
+            triangleArray.push(mouseY - longitude);
+        
+            console.log(" ");
+        
+        }
+    }
+    else if(mouseX<0 && mouseY<0){
+        for(var i=0;i<=divisions;i++){
+            var theta3 = theta2 * i;
+            var rads2deg = theta3 * (Math.PI/180);
+        
+            console.log("theta3: " + theta3);
+            console.log("degrees: " + rads2deg);
+        
+        
+            var latitude = r * Math.sin(rads2deg);
+            console.log("loop: " + i + " Lat: " + r + "sin" + theta3 + " = " + latitude);
+            console.log("lat + coord = " + (latitude + mouseX));
+        
+            var longitude = r * Math.cos(rads2deg);
+            console.log("loop: " + i + " Long: " + r + "cos" + theta3 + " = " + longitude);
+            console.log("long + coord = " + (longitude + mouseY));
+
+        
+       
+
+            triangleArray.push(mouseX + latitude);
+            triangleArray.push(mouseY + longitude);
+        
+            console.log(" ");
+        }
+    }
+    else if(mouseX==0 && mouseY==0){
+        for(var i=0;i<=divisions;i++){
+            var theta3 = theta2 * i;
+            var rads2deg = theta3 * (Math.PI/180);
+        
+            console.log("theta3: " + theta3);
+            console.log("degrees: " + rads2deg);
+        
+        
+            var latitude = r * Math.sin(rads2deg);
+            console.log("loop: " + i + " Lat: " + r + "sin" + theta3 + " = " + latitude);
+            console.log("lat + coord = " + (latitude + mouseX));
+        
+            var longitude = r * Math.cos(rads2deg);
+            console.log("loop: " + i + " Long: " + r + "cos" + theta3 + " = " + longitude);
+            console.log("long + coord = " + (longitude + mouseY));
+
+        
+       
+
+            triangleArray.push(latitude);
+            triangleArray.push(longitude);
+        
+            console.log(" ");
+        }
+    }
+    
+
+    
+    triangleArray.push(mouseX);
+    triangleArray.push(mouseY);
+      
+    
+    var finalArray = triangleArray.slice(2,startPoint*2);
+    console.log("[" + triangleArray + "]");
+    console.log(triangleArray.length);
+    
+    triangleArray.splice(2, startPoint*2);
+    console.log("[" + triangleArray + "]");
+    console.log(triangleArray.length);
+    
+    for(var i=0; i<finalArray.length; i++){
+        
+        finalArray[i] = -finalArray[i];
+    }
+    
+    console.log(finalArray);
+    
+    //Draws the triangle
+    var triangle = viewer.entities.add({
+        name: 'Triangle',
+        polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(triangleArray),
+            material: Cesium.Color.RED.withAlpha(0.5),
+            outline: true,
+            outlineColor: Cesium.Color.WHITE
+    }
+});
+
+viewer.zoomTo(triangle);
+}
+
+
+arcMaxHeight();
+drawCameraCoverage(0, 0);
+
+
+
+

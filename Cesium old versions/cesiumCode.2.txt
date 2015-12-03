@@ -1,0 +1,52 @@
+var viewer = new Cesium.Viewer('cesiumContainer');
+
+var m1 = 111132.92;		// latitude calculation term 1
+
+var	m2 = -559.82;		// latitude calculation term 2
+
+var m3 = 1.175;			// latitude calculation term 3
+
+var m4 = -0.0023;		// latitude calculation term 4
+
+var p1 = 111412.84;		// longitude calculation term 1
+
+var p2 = -93.5;			// longitude calculation term 2
+
+var p3 = 0.118;			// longitude calculation term 3
+
+
+
+
+viewer.canvas.addEventListener('click', function(e){
+    var mousePosition = new Cesium.Cartesian2(e.clientX, e.clientY);
+
+    var ellipsoid = viewer.scene.globe.ellipsoid;
+    var cartesian = viewer.camera.pickEllipsoid(mousePosition, ellipsoid);
+    if (cartesian) {
+        var cartographic = ellipsoid.cartesianToCartographic(cartesian);
+        var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+        var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+        var latlen = m1 + (m2 * Math.cos(2 * latitudeString)) + (m3 * Math.cos(4 * latitudeString)) + (m4 * Math.cos(6 * latitudeString));
+        var longlen = (p1 * Math.cos(latitudeString)) + (p2 * Math.cos(3 * latitudeString)) + (p3 * Math.cos(5 * latitudeString));
+        
+        var triangle = viewer.entities.add({
+    name: 'Triangle',
+    polygon: {
+        hierarchy: Cesium.Cartesian3.fromDegreesArray([
+            (latitudeString + latlen*15),(longitudeString + longlen*15),
+            latitudeString,longitudeString,
+            (latitudeString + latlen*15),(longitudeString + longlen*15)
+            ]),
+        material: Cesium.Color.RED.withAlpha(0.5),
+        outline: true,
+        outlineColor: Cesium.Color.BLACK
+    }
+})
+    } else {
+        alert('Globe was not picked');
+    }
+	
+}, false);
+
+
+viewer.zoomTo(viewer.entities);

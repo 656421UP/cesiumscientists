@@ -1,0 +1,48 @@
+var viewer = new Cesium.Viewer('cesiumContainer');
+var theta = 90; //Angle of the focal point of the triangle
+var r = 20; //Radius
+
+//Calculates the arc from the radius and degrees
+function calculateArc(){
+    var pi = Math.PI;
+    var arc = (theta/180) * pi * r;
+    var c = r * Math.sqrt(2-(2*Math.cos(theta)));
+    console.log("arc length: " + arc);
+    console.log("opposite of angle: " + c);
+    return arc;
+}
+
+//Calculates the maximum height of the arc from the hypotenuse
+function arcMaxHeight(){
+    var h = r * (1-Math.cos(theta/2));
+    console.log("max height of arc: " + h);
+    return h;
+}
+
+//Draws the triangle
+var triangle = viewer.entities.add({
+    name: 'Triangle',
+    polygon: {
+        hierarchy: Cesium.Cartesian3.fromDegreesArray([
+            0,10,
+            0,0,
+            1,0.25,
+            2,0.75,
+            3,1.1,
+            4,1.9,
+            5,2.5,
+            6,3,
+            7,4,
+            8,5,
+            9,6.1,
+            10,10
+            ]),
+        material: Cesium.Color.RED.withAlpha(0.5),
+        outline: true,
+        outlineColor: Cesium.Color.BLACK
+    }
+});
+viewer.zoomTo(triangle);
+
+calculateArc();
+arcMaxHeight();

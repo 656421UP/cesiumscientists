@@ -1,0 +1,112 @@
+var viewer = new Cesium.Viewer('cesiumContainer');
+var theta = 50; //Angle of the focal point of the triangle
+var r = 5; //Radius
+
+//Calculates the arc from the radius and degrees
+function calculateArc(){
+    var pi = Math.PI;
+    var arc = (theta/180) * pi * r;
+    var c = r * Math.sqrt(2-(2*Math.cos(theta)));
+    console.log("arc length: " + arc);
+    console.log("opposite of angle: " + c);
+    return arc;
+}
+
+//Calculates the maximum height of the arc from the hypotenuse
+function arcMaxHeight(){
+    var h = r * (1-Math.cos(theta/2));
+    console.log("max height of arc: " + h);
+    return h;
+}
+
+function drawCameraCoverage(mouseX, mouseY){
+    var triangleArray = [mouseX,mouseY];
+    var theta2 = theta/10;
+    console.log(" ");
+
+    if(mouseX>0 && mouseY>0){
+        for(var i=0;i<=10;i++){
+            var theta3 = theta2 * i;
+            var rads2deg = theta3 * (Math.PI/180);
+        
+            console.log("theta3: " + theta3);
+            console.log("degrees: " + rads2deg);
+        
+        
+            var latitude = r * Math.sin(rads2deg);
+            console.log("loop: " + i + " Lat: " + r + "sin" + theta3 + " = " + latitude);
+        
+            var longitude = r * Math.cos(rads2deg);
+            console.log("loop: " + i + " Long: " + r + "cos" + theta3 + " = " + longitude);
+        
+       
+
+            triangleArray.push(mouseX - latitude);
+            triangleArray.push(mouseY - longitude);
+        
+            console.log(" ");
+        
+        }
+        console.log("[" + triangleArray + "]");
+    }
+    else if(mouseX<0 && mouseY<0){
+        for(var i=0;i<=10;i++){
+            var theta3 = theta2 * i;
+            var rads2deg = theta3 * (Math.PI/180);
+        
+            console.log("theta3: " + theta3);
+            console.log("degrees: " + rads2deg);
+        
+        
+            var latitude = r * Math.sin(rads2deg);
+            console.log("loop: " + i + " Lat: " + r + "sin" + theta3 + " = " + latitude);
+        
+            var longitude = r * Math.cos(rads2deg);
+            console.log("loop: " + i + " Long: " + r + "cos" + theta3 + " = " + longitude);
+        
+       
+
+            triangleArray.push(mouseX + latitude);
+            triangleArray.push(mouseY + longitude);
+        
+            console.log(" ");
+        
+        }
+        console.log("[" + triangleArray + "]");
+    }
+
+    triangleArray.push(mouseX);
+    triangleArray.push(mouseY);
+
+    //Draws the triangle
+    var triangle = viewer.entities.add({
+        name: 'Triangle',
+        polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(triangleArray),
+            material: Cesium.Color.RED.withAlpha(0.5),
+            outline: true,
+            outlineColor: Cesium.Color.WHITE
+    }
+});
+}    
+Sandcastle.addToolbarButton('on click', function(){
+viewer.canvas.addEventListener('click', function(e){
+    var mousePosition = new Cesium.Cartesian2(e.clientX, e.clientY);
+
+    var ellipsoid = viewer.scene.globe.ellipsoid;
+    var cartesian = viewer.camera.pickEllipsoid(mousePosition, ellipsoid);
+    if (cartesian) {
+        var cartographic = ellipsoid.cartesianToCartographic(cartesian);
+        var mouseX = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+        var mouseY = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+        drawCameraCoverage(mouseX, mouseY);
+        }
+     else {
+        alert('Globe was not picked');
+    }
+	
+}, false);    
+});
+
+arcMaxHeight();
+drawCameraCoverage(10, 20);

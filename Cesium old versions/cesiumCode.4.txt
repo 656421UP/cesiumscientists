@@ -1,0 +1,32 @@
+var viewer = new Cesium.Viewer('cesiumContainer');
+
+viewer.canvas.addEventListener('click', function(e){
+    var mousePosition = new Cesium.Cartesian2(e.clientX, e.clientY);
+
+    var ellipsoid = viewer.scene.globe.ellipsoid;
+    var cartesian = viewer.camera.pickEllipsoid(mousePosition, ellipsoid);
+    if (cartesian) {
+        var cartographic = ellipsoid.cartesianToCartographic(cartesian);
+        var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+        var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+        var triangle = viewer.entities.add({
+        name: 'Triangle',
+            polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray([
+            longitudeString,latitudeString,
+            latitudeString+10,latitudeString+10,
+            longitudeString-10,longitudeString-10
+            ]),
+        material: Cesium.Color.RED.withAlpha(0.5),
+        outline: true,
+        outlineColor: Cesium.Color.BLACK
+    }
+});
+    } else {
+        alert('Globe was not picked');
+    }
+	
+}, false);
+
+
+viewer.zoomTo(viewer.entities);
